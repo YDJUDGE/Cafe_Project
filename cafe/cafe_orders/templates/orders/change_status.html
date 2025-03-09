@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Изменение статуса заказа
+{% endblock %}
+
+{% block body %}
+<h1>Изменение статуса заказа</h1>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li {% if message.tsgs %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <label for="order_id">ID заказа</label>
+    <input type="number" id="order_id" name="order_id" min="1" required>
+    <label for="status">Новый статус:</label>
+    <select id="status" name="status" required>
+        {% for choice in status_choices %}
+            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Изменить статус</button>
+</form>
+
+<a href="{% url 'order_list' %}">Вернуться к списку заказов</a>
+
+{% endblock %}

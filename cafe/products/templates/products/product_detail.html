@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ product.name }}
+{% endblock %}
+
+{% block body %}
+<h1>{{ product.name }}</h1>
+<p><strong>Описание:</strong> {{ product.description }}</p>
+<p><strong>Цена:</strong> {{ product.price }} руб.</p>
+{% if product.image %}
+    <p><strong>Изображение:</strong></p>
+    <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 300px">
+{% else %}
+    <p>Изображение отсутсвует</p>
+{% endif %}
+<form method="post" action="{% url 'add_to_cart' product.pk %}">
+    {% csrf_token %}
+    <input type="number" name="quantity" value="0" min="0" style="width: 50px">
+    <button type="submit">Добавить в заказ</button>
+</form>
+<br>
+<a href="{% url 'list' %}">Вернуться к списку</a>
+<br>
+{% if user.is_staff %}
+<a href="{% url 'delete_product' product.pk %}">Удалить продукт</a>
+{% endif %}
+{% endblock %}

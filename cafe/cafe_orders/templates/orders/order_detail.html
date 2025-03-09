@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Детали заказа #{{ order.pk }}
+{% endblock %}
+
+{% block body %}
+<h1>Детали заказа #{{ order.pk }}</h1>
+<p>Номер стола {{ order.table_number }}</p>
+<p>Общая стоимость {{ order.total_price }} руб.</p>
+<p>Статус {{ order.get_status_display }}</p>
+<h3>Список блюд:</h3>
+<ul>
+    {% for item in items_with_totals %}
+    <li>{{ item.name }} - {{ item.quantity }} шт. x {{ item.price }} руб. = {{ item.total }} руб.</li>
+    {% endfor %}
+</ul>
+<form method="post">
+    {% csrf_token %}
+    <select name="status">
+        {% for choice in status_choices %}
+            <option value="{{ choice.0 }}" {% if choice.0 == order.status %} selected {% endif %}>{{ choice.1 }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Обновить статус</button>
+</form>
+<a href="{% url 'order_list' %}">Вернуться к списку</a>
+{% endblock %}

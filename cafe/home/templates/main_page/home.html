@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Главная
+{% endblock %}
+
+{% block body %}
+<h1>Добро пожаловать в кафе!</h1>
+<ul>
+    <li><a href="{% url 'list' %}">Меню</a></li>
+    <li><a href="{% url 'cart_view' %}">Корзина</a></li>
+    <li><a href="{% url 'order_list' %}">Заказы</a></li>
+    {% if user.is_staff %}
+    <li><a href="{% url 'revenue' %}">Общая выручка</a></li>
+    {% endif %}
+</ul>
+{% endblock %}
