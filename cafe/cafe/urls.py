@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-from home.views import custom_404
+from home.views import custom_404, custom_403
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -32,3 +32,4 @@ urlpatterns = [
 
 
 handler404 = custom_404
+handler403 = custom_403
