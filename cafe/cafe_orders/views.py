@@ -41,8 +41,17 @@ class OrderCreateView(CreateView):
         order.items = items
         order.total_price = total_price
         order.save()
-        del self.request.session['cart']
+
+        user_orders = self.request.session.get('user_orders', [])
+        user_orders.append(str(order.pk))
+        self.request.session['user_orders'] = user_orders
         self.request.session.modified = True
+
+        if 'cart' in self.request.session:
+            del self.request.session['cart']
+            self.request.session.modified = True
+
+        messages.success(self.request, "Заказ успешно создан")
         return super().form_valid(form)
 
 class OrderDetailView(DetailView):
@@ -161,7 +170,9 @@ class DeleteOrderView(View):
     template_name = 'orders/delete_order.html'
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name)
+        user_orders = request.session.get('user_orders', [])
+        context = {'user_orders': user_orders}
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         order_id = request.POST.get('order_id')
@@ -179,8 +190,22 @@ class DeleteOrderView(View):
         except ObjectDoesNotExist:
             raise Http404("Заказ не нйаден")
 
-        order.delete()
-        messages.success(request, "Заказ успешно удалён")
+        user_orders = request.session.get('user_orders', [])
+
+        if str(order_id) not in user_orders:
+            messages.error(request, "Вы можете удалить только свои заказы")
+            return redirect('delete_order')
+
+        try:
+            order = Order.objects.get(pk=order_id)
+            order.delete()
+            if str(order_id) in user_orders:
+                user_orders.remove(str(order_id))
+                request.session['user_orders'] = user_orders
+            messages.success(request, "Заказ успешно удалён")
+            return redirect('order_list')
+        except Order.DoesNotExist:
+            raise Http404("Заказ с ID {} не найден".format(order_id))
 
         return redirect('order_list')
 
